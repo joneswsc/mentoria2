@@ -3,24 +3,23 @@ import { observer, inject } from 'mobx-react';
 
 import Table from './Table';
 
-export default inject(({ store : { payments }}) => ({ payments }))
-	(observer(({ className, payments }) => {
-		const output = payments.slice(1)
-			.filter(year => year.balance > 0 || year.interestYearly > 0)
-			.reduce((acc, year, index) => ({
-				interestTotal: acc.interestTotal + year.interestYearly,
-				overpaymentTotal: acc.overpaymentTotal + year.overpayment,
+export default inject(({ store : { investimentos }}) => ({ investimentos }))
+	(observer(({ className, investimentos }) => {
+		const output = investimentos.slice(1)
+			.filter(ano => ano.saldo > 0 || ano.juroAnual > 0)
+			.reduce((acc, ano, index) => ({
+				juroTotal: acc.juroTotal + ano.juroAnual,
+				investimentoExtraTotal: acc.investimentoExtraTotal + ano.investimentoExtra,
 				rows: acc.rows.concat([
-					[year.partial ? year.partial + "m" : index + 1,
-					Math.round(year.interestYearly || 0),
-					Math.round(year.overpayment),
-					Math.round(year.balance)]])
-			}), { interestTotal: 0, overpaymentTotal: 0, rows: [] });
+					[ano.parcial ? ano.parcial + "m" : index + 1,
+					Math.round(ano.juroAnual || 0),
+					Math.round(ano.investimentoExtra),
+					Math.round(ano.saldo)]])
+			}), { juroTotal: 0, investimentoExtraTotal: 0, rows: [] });
 
 		return <Table className={className}
-			headings={["Years", "Interest", "Overpayment", "Balance"]}
+			headings={["Anos", "Juros", "InvestimentoExtra", "Saldo"]}
 			rows={output.rows}
-			totals={[" ", Math.round(output.interestTotal), Math.round(output.overpaymentTotal), " "]} />;
+			totals={[" ", Math.round(output.juroTotal), Math.round(output.investimentoExtraTotal), " "]} />;
 	})
 );
-

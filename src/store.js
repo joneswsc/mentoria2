@@ -1,59 +1,61 @@
 import { observable, computed, action } from 'mobx';
 
 export default class {
-  @observable initial = 200000;
-  @observable rate = 5;
-  @observable years = 25;
-  @observable monthlyOverpayment = 0;
-  @observable overpayments = [{ year: 0, month: 1, amount: 0 }];
+  @observable inicial = 100000;
+  @observable taxas = 10;
+  @observable inflacao = 5;
+  @observable anos = 17;
+  @observable investimentoExtraMensal = 0;
+  @observable investimentoExtras = [{ ano: 0, mes: 1, valor: 0 }];
 
-  @action setYears = (val) => this.years = val;
-  @action setRate = (val) => this.rate = val;
-  @action setInitial = (val) => this.initial = val;
-  @action setMonthlyOverpayment = (val) => this.monthlyOverpayment = val;
-  @action addOverpayment = () => this.overpayments.push({ year: 0, month: 1, amount: 0 });
-  @action removeOverpayment = (index) => this.overpayments.splice(index, 1);
-  @action setOverpayment = (field, index, val) => this.overpayments[index][field] = val;
+  @action setAnos = (val) => this.anos = val;
+  @action setTaxas = (val) => this.taxas = val;
+  @action setInflacao = (val) => this.inflacao = val;
+  @action setInicial = (val) => this.inicial = val;
+  @action setInvestimentoExtraMensal = (val) => this.investimentoExtraMensal = val;
+  @action addInvestimentoExtra = () => this.investimentoExtras.push({ ano: 0, mes: 1, valor: 0 });
+  @action removeInvestimentoExtra = (index) => this.investimentoExtras.splice(index, 1);
+  @action setInvestimentoExtra = (field, index, val) => this.investimentoExtras[index][field] = val;
 
-  @computed get monthlyPayment() {
-    return +this.initial * (this.rate / 1200) / (1 - Math.pow(1 / (1 + this.rate / 1200), this.years * 12));
+  @computed get investimentoMensal() {
+    return +this.inicial * (this.taxas / 1200) / (1 - Math.pow(1 / (1 + this.taxas / 1200), this.anos * 12));
   }
 
-  @computed get monthlyPaymentTotal() {
-    return (this.monthlyPayment + (+this.monthlyOverpayment)).toFixed(2);
+  @computed get investimentoMensalTotal() {
+    return (this.investimentoMensal + (+this.investimentoExtraMensal)).toFixed(2);
   }
 
-  @computed get payments() {
-    const monthlyRatePct = this.rate / 1200;
+  @computed get investimentos() {
+    const percTaxaMensal = this.taxas / 1200;
 
-    let balance = +this.initial;
-    let baseline = +this.initial;
-    let payments = [{ overpayment: 0, balance, baseline }];
-    let partial;
+    let saldo = +this.inicial;
+    let linhabase = +this.inicial;
+    let investimentos = [{ investimentoExtra: 0, saldo, linhabase }];
+    let parcial;
 
-    for (let year = 0; year < this.years; year++) {
-      let interestYearly = 0;
-      let overpaymentYearly = 0;
-      for (let month = 1; month <= 12; month++) {
-        const overpayment = this.overpayments.filter(x => (x.year == year && x.month == month))
-          .reduce((acc, val) => acc + (+val.amount), 0);
-        const interestMonth = balance * monthlyRatePct;
-        interestYearly += interestMonth;
-        overpaymentYearly += overpayment;
-        balance -= this.monthlyPayment + (+this.monthlyOverpayment) + overpayment - interestMonth;
-        baseline -= this.monthlyPayment - (baseline * monthlyRatePct);
+    for (let ano = 0; ano < this.anos; ano++) {
+      let juroAnual = 0;
+      let investimentoExtraAnual = 0;
+      for (let mes = 1; mes <= 12; mes++) {
+        const investimentoExtra = this.investimentoExtras.filter(x => (x.ano == ano && x.mes == mes))
+          .reduce((acc, val) => acc + (+val.valor), 0);
+        const juroMensal = saldo * percTaxaMensal;
+        juroAnual += juroMensal;
+        investimentoExtraAnual += investimentoExtra;
+        saldo -= this.investimentoMensal + (+this.investimentoExtraMensal) + investimentoExtra - juroMensal;
+        linhabase -= this.investimentoMensal - (linhabase * percTaxaMensal);
 
-        if (balance <= 0) {
-          balance = 0;
-          if (partial === undefined && month !== 12) {
-            partial = month;
+        if (saldo <= 0) {
+          saldo = 0;
+          if (parcial === undefined && mes !== 12) {
+            parcial = mes;
           }
         }
       }
 
-      payments.push({ baseline, interestYearly, balance, partial, overpayment: overpaymentYearly + (this.monthlyOverpayment * (partial || 12)) });
-      if (partial) partial = 0;
+      investimentos.push({ linhabase, juroAnual, saldo, parcial, investimentoExtra: investimentoExtraAnual + (this.investimentoExtraMensal * (parcial || 12)) });
+      if (parcial) parcial = 0;
     }
-    return payments;
+    return investimentos;
   }
 }

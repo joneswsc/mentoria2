@@ -11,13 +11,13 @@ import '../styles/App.scss';
 
 export default () => (
   <div>
-    <Header title={"Mortgage Overpayment Calculator"} />
+    <Header title={"Simulador de poupança 2"} />
     <div className="container-fluid">
       <div className="col-md-8 col-sm-12">
         <BaseFigures className="col-sm-4" />
         <Overpayment className="col-sm-8" />
         <div className="col-sm-12">
-          <Payment title="Monthly Payment" />
+          <Payment title="Investimento mensal" />
           <Chart />
         </div>
       </div>
@@ -25,4 +25,3 @@ export default () => (
     </div>
   </div>
 );
-

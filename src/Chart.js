@@ -19,20 +19,20 @@ const x = scaleLinear()
 const y = scaleLinear()
   .range([0, height]);
 
-const lineGenerator = line()
-  .x((d, i) => x(i + ((d.partial / 12) || 1) - 1))
-  .y(d => y(d.balance));
+const GeradorLinha = line()
+  .x((d, i) => x(i + ((d.parcial / 12) || 1) - 1))
+  .y(d => y(d.saldo));
 
-const baselineGenerator = line()
+const GeradorLinhabase = line()
   .x((d, i) => x(i))
-  .y(d => y(d.baseline));
+  .y(d => y(d.linhabase));
 
-@inject(({ store : { payments }}) => ({ payments })) @observer
+@inject(({ store : { investimentos }}) => ({ investimentos })) @observer
 export default class Chart extends React.Component<> {
   render() {
-    const data = this.props.payments;
+    const data = this.props.investimentos;
     x.domain([0, data.length - 1]);
-    y.domain([data[0].balance, 0]);
+    y.domain([data[0].saldo, 0]);
 
     return (<svg
       height="100%"
@@ -41,23 +41,23 @@ export default class Chart extends React.Component<> {
       <g transform={`translate(${margin.left},${margin.top})`}>
         <g className="axis" ref={r => this.xAxis = select(r) } transform={`translate(0, ${height})`}></g>
         <g className="axis" ref={r => this.yAxis = select(r) }></g>
-        <path className="line baseline" d={baselineGenerator(data) }></path>
-        <path className="line"  d={lineGenerator(data) }></path>
+        <path className="line baseline" d={GeradorLinhabase(data) }></path>
+        <path className="line "  d={GeradorLinha(data) }></path>
       </g>
     </svg>);
   }
   componentDidMount() {
     this.drawAxis();
   }
-  componentDidUpdate({ payments }){
-    if ((payments.length !== this.props.payments.length) ||
-      (payments[0].balance !== this.props.payments[0].balance)) {
+  componentDidUpdate({ investimentos }){
+    if ((investimentos.length !== this.props.investimentos.length) ||
+      (investimentos[0].saldo !== this.props.investimentos[0].saldo)) {
       this.drawAxis();
     }
-    
+
   }
   drawAxis() {
-    this.xAxis.call(axisBottom().scale(x).ticks(Math.min(this.props.payments.length, 30)));
+    this.xAxis.call(axisBottom().scale(x).ticks(Math.min(this.props.investimentos.length, 30)));
     this.yAxis.call(axisLeft().scale(y));
   }
 }

@@ -1,7 +1,7 @@
 {
-  "name": "mortgage-mobx",
+  "name": "mentoria2",
   "version": "0.0.1",
-  "description": "Mortgage overpayment calculator",
+  "description": "simulador de poupanca 2",
   "scripts": {
     "build": "webpack --config webpack.config.prod.js"
   },
