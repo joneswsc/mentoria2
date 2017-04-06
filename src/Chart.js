@@ -27,12 +27,12 @@ const GeradorLinhabase = line()
   .x((d, i) => x(i))
   .y(d => y(d.linhabase));
 
-@inject(({ store : { investimentos }}) => ({ investimentos })) @observer
+@inject(({ store : { investimentos, anos }}) => ({ investimentos, anos })) @observer
 export default class Chart extends React.Component<> {
   render() {
     const data = this.props.investimentos;
     x.domain([0, data.length - 1]);
-    y.domain([data[0].saldo, 0]);
+    y.domain([data[this.props.anos].saldo+100000, 0]);
 
     return (<svg
       height="100%"

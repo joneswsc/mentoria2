@@ -5,10 +5,13 @@ export default inject(["store"])(observer(({ className, store }) => (
   <div className={className}>
     <div>
       <h2>Adicionais</h2>
-      <label>Mensais</label>
+      <label>Aportes Mensais</label>
       <input type="text" maxLength="5" value={store.investimentoExtraMensal} onChange={ e => store.setInvestimentoExtraMensal(e.target.value) }/>
     </div>
-
+    <div><label></label></div>
+    <div>
+      <label>Aportes Avulsas</label>
+    </div>
     <div>
       <label>Ano______Mes______Valor</label>
 
