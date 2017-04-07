@@ -7,7 +7,7 @@ import { line } from 'd3-shape';
 import { scaleLinear } from 'd3-scale';
 import { axisBottom, axisLeft } from 'd3-axis';
 
-const margin = { top: 20, right: 20, bottom: 20, left: 80 },
+const margin = { top: 10, right: 10, bottom: 20, left: 60 },
   fullWidth = 800,
   fullHeight = 300,
   width = fullWidth - margin.left - margin.right,

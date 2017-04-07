@@ -36,14 +36,17 @@ export default class {
     let saldo = +this.inicial;
     let saldoFinal = +this.inicial;
     let linhabase = +this.inicial;
-    let investimentos = [{ investimentoExtra: 0, saldo, linhabase }];
+    let investimentos = [{ investimentoExtra: 0, retiradaAnual:0 ,investimentoAnual:this.inicial, saldo, linhabase, juroAnual:0 }];
     let parcial;
+
+console.log(investimentos);
 
     for (let ano = 0; ano < (this.espectativaIdadeAnos-this.idadeAtual); ano++) {
       let juroAnual = 0;
       let investimentoExtraAnual = 0;
       let retiradaAnual = 0;
       let investimentoAnual = 0;
+
       for (let mes = 1; mes <= 12; mes++) {
         let investimentoExtra = this.investimentoExtras.filter(x => (x.ano == ano && x.mes == mes))
           .reduce((acc, val) => acc + (+val.valor), 0);
@@ -59,15 +62,16 @@ export default class {
           saldoFinal += this.investimentoMensal + (+this.investimentoExtraMensal) + investimentoExtra + juroMensal;
         }
 
-
         if (ano >= this.anos) {
           investimentoAnual = 0;
-          retiradaAnual = (this.retiradaMensal * (parcial || 12));
+          retiradaAnual = retiradaAnual + this.retiradaMensal ;
           saldo = saldo - this.retiradaMensal + juroMensal;
           linhabase = linhabase - this.retiradaMensal + juroMensal;
         }
 
         if (saldo <= 0) {
+          console.log(saldo);
+          retiradaAnual = retiradaAnual + saldo;
           saldo = 0;
           if (parcial === undefined && mes !== 12) {
             parcial = mes;

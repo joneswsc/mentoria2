@@ -4,7 +4,7 @@ import { observer, inject } from 'mobx-react';
 export default inject(["store"])(observer(({ className, store }) => (
   <div className={className}>
     <div>
-      <h2>Adicionais</h2>
+      <h3>Adicionais</h3>
       <label>Aportes Mensais</label>
       <input type="text" maxLength="5" value={store.investimentoExtraMensal} onChange={ e => store.setInvestimentoExtraMensal(e.target.value) }/>
     </div>
