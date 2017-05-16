@@ -1,7 +1,8 @@
 import React from 'react';
 
 export default ({ headings, rows, totals, className }) => (
-	<table className={className}>
+	<div className={className}>
+	<table >
 		<thead>
 			<tr>
 				{headings.map((d, i) => <th key={i}>{d}</th>) }
@@ -21,4 +22,5 @@ export default ({ headings, rows, totals, className }) => (
 			</tr>
 		</tfoot>
 	</table>
+</div>
 );

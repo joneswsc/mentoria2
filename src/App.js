@@ -11,16 +11,15 @@ import '../styles/App.scss';
 
 export default () => (
   <div>
-    <Header title={"Simulador de poupança 2 (em desenvolvimento)"} />
-    <div className="container-fluid">
-      <div className="col-sm-12 col-md-8">
-        <BaseFigures className="col-sm-4"/>
-        <Overpayment className="col-sm-8"/>
+    <Header title={"Simulador de aplicação (Em Dev)"} />
+      <div className="container-fluid">
+        <div className="col-md-8 col-sm-12 ">
+        <BaseFigures className="col-sm-12"/>
+        <div className="col-sm-12">
+           <Chart />
+        </div>
       </div>
-          <Chart className="col-sm-8 col-md-8" />
-            <TableContainer className="col-sm-8 col-md-8" />
-
-
+      <TableContainer className="col-sm-4" />
+      </div>
     </div>
-  </div>
 );

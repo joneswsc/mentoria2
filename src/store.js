@@ -1,24 +1,30 @@
 import { observable, computed, action } from 'mobx';
 
 export default class {
-  @observable inicial = 100000;
-  @observable taxas = 10;
+  @observable idadeAtual = 32;
+  @observable aporteInicial = 200000;
+  @observable depositoMensal = 1000;
+  @observable taxaRentabilidade = 10;
   @observable inflacao = 5;
-  @observable idadeAtual = 48;
-  @observable anos = 17;
-  @observable espectativaIdadeAnos = 100;
-  @observable retiradaMensal = 10000;
-  @observable investimentoExtraMensal = 1000;
-  @observable investimentoExtras = [{ ano: 0, mes: 1, valor: 0 }];
-  @observable saldoFinal=1000000;
+
+  @observable idadeAposentadoria = 60;
+  @observable retiradaMensal = 8000;
+  @observable anos = 28;
+
+  @observable espectativaIdadeAnos = 120;
+  @observable saldoFinal=0;
+
+  @observable investimentoExtras = [{ ano: 0, mes: 0, valor: 0 }];
 
   @action setAnos = (val) => this.anos = val;
-  @action setTaxas = (val) => this.taxas = val;
+  @action setIdadeAtual = (val) => this.idadeAtual = val;
+  @action setAporteInicial = (val) => this.aporteInicial = val;
+  @action setDepositoMensal = (val) => this.depositoMensal = val;
+  @action setTaxaRentabilidade = (val) => this.taxaRentabilidade = val;
   @action setInflacao = (val) => this.inflacao = val;
-  @action setInicial = (val) => this.inicial = val;
+  @action setIdadeAposentadoria = (val) => this.idadeAposentadoria = val;
   @action setRetiradaMensal = (val) => this.retiradaMensal = val;
-  @action setInvestimentoExtraMensal = (val) => this.investimentoExtraMensal = val;
-  @action addInvestimentoExtra = () => this.investimentoExtras.push({ ano: 0, mes: 1, valor: 0 });
+  @action addInvestimentoExtra = () => this.investimentoExtras.push({ ano: 0, mes: 0, valor: 0 });
   @action removeInvestimentoExtra = (index) => this.investimentoExtras.splice(index, 1);
   @action setInvestimentoExtra = (field, index, val) => this.investimentoExtras[index][field] = val;
 
@@ -27,50 +33,87 @@ export default class {
   }
 
   @computed get investimentoMensalTotal() {
-    return (this.investimentoMensal + (+this.investimentoExtraMensal)).toFixed(2);
+    return (this.investimentoMensal + (+this.depositoMensal)).toFixed(2);
   }
 
   @computed get investimentos() {
-    const percTaxaMensal = this.taxas / 1200;
+    const percTaxaMensal = this.taxaRentabilidade / 1200;
 
-    let saldo = +this.inicial;
-    let saldoFinal = +this.inicial;
-    let linhabase = +this.inicial;
-    let investimentos = [{ investimentoExtra: 0, retiradaAnual:0 ,investimentoAnual:this.inicial, saldo, linhabase, juroAnual:0 }];
+    let saldo = +this.aporteInicial;
+    let saldoFinal = +this.aporteInicial;
+    let saldoRent = +this.aporteInicial;
+    let saldoRentImp = +this.aporteInicial;
+    let linhabase = +this.aporteInicial;
+    let investimentos = [{ investimentoExtra: 0, impostoAnual:0, retiradaAnual:0 ,investimentoAnual:this.aporteInicial, saldo, linhabase, juroAnual:0, idade: +this.idadeAtual, saldoRent, saldoRentImp }];
     let parcial;
+    let idade;
+    let taxaimpostoAnual = 0.15;
+    let taxaRentAnual = 1 + (this.taxaRentabilidade/100);
+    let taxaRentMensal = taxaRentAnual ** (1/12);
+    let taxaRentImpAnual = 1 + ((this.taxaRentabilidade/100) * (1-taxaimpostoAnual));
+    let taxaRentImpMensal = taxaRentImpAnual ** (1/12);
+    let taxaRentImpInflacaoAnual = 1 + ((this.taxaRentabilidade/100) * (1-taxaimpostoAnual)) - (this.inflacao/100);
+    //console.log('this.taxaRentabilidade:' + this.taxaRentabilidade + '; taxaimpostoAnual:' + taxaimpostoAnual + '; inflacao: ' + this.inflacao + 'taxaRentImpInflacaoAnual:' + taxaRentImpInflacaoAnual);
+    let taxaRentImpInflacaoMensal = taxaRentImpInflacaoAnual  ** (1/12);
+    let nummeses = 0;
+    let qtdmeses = (+this.idadeAposentadoria-this.idadeAtual) * 12;
+    //console.log('taxaRentImpInflacaoMensal:' + taxaRentImpInflacaoMensal);
 
-console.log(investimentos);
-
-    for (let ano = 0; ano < (this.espectativaIdadeAnos-this.idadeAtual); ano++) {
+    for (let ano = 1; ano < (+this.espectativaIdadeAnos-this.idadeAtual); ano++) {
       let juroAnual = 0;
       let investimentoExtraAnual = 0;
       let retiradaAnual = 0;
+      let impostoAnual = 0;
+      let contaMes = 0;
       let investimentoAnual = 0;
+      let idade = +(this.idadeAtual) + ano;
 
       for (let mes = 1; mes <= 12; mes++) {
         let investimentoExtra = this.investimentoExtras.filter(x => (x.ano == ano && x.mes == mes))
-          .reduce((acc, val) => acc + (+val.valor), 0);
+           .reduce((acc, val) => acc + (+val.valor), 0);
         const juroMensal = saldo * percTaxaMensal;
+
         juroAnual += juroMensal;
         investimentoExtraAnual += investimentoExtra;
+        nummeses += 1;
 
-        if (ano < this.anos) {
-          investimentoAnual = investimentoExtraAnual + (this.investimentoExtraMensal * (parcial || 12));
+        // console.log(nummeses + ':' + qtdmeses + " - " + investimentos);
+
+
+        if (nummeses <= qtdmeses) {
+          contaMes = +this.depositoMensal;}
+        else {
+          contaMes = -this.retiradaMensal;
+        }
+
+        if (nummeses <= qtdmeses) {
+
+          saldo = (saldo *  taxaRentImpInflacaoMensal) + contaMes + investimentoExtra;
+          saldoRent = (saldo *  taxaRentImpInflacaoMensal) + contaMes + investimentoExtra;
+          saldoRentImp = (saldo *  taxaRentImpInflacaoMensal) + contaMes + investimentoExtra;
+          linhabase = saldo;
+          saldoFinal = (saldoFinal *  taxaRentImpInflacaoMensal) + contaMes + investimentoExtra;
+
+          investimentoAnual = investimentoExtraAnual + (this.depositoMensal * (parcial || 12));
           retiradaAnual = 0;
-          saldo += this.investimentoMensal + (+this.investimentoExtraMensal) + investimentoExtra + juroMensal;
-          linhabase += this.investimentoMensal + (linhabase * percTaxaMensal);
-          saldoFinal += this.investimentoMensal + (+this.investimentoExtraMensal) + investimentoExtra + juroMensal;
+          impostoAnual = 0;
         }
 
-        if (ano >= this.anos) {
+        if (nummeses > qtdmeses) {
           investimentoAnual = 0;
-          retiradaAnual = retiradaAnual + this.retiradaMensal ;
-          saldo = saldo - this.retiradaMensal + juroMensal;
-          linhabase = linhabase - this.retiradaMensal + juroMensal;
+
+          retiradaAnual = retiradaAnual + contaMes;
+          impostoAnual = 0;
+
+          saldo = (saldo *  taxaRentImpInflacaoMensal) + contaMes + investimentoExtra;
+          saldoRent = (saldo *  taxaRentImpInflacaoMensal) + contaMes + investimentoExtra;
+          saldoRentImp = (saldo *  taxaRentImpInflacaoMensal) + contaMes + investimentoExtra;
         }
+
+        //console.log('Ano: ' + ano + ' Mes: '+ mes + ' ContaMed:' + contaMes + ' Saldo:' + saldo);
+
 
         if (saldo <= 0) {
-          console.log(saldo);
           retiradaAnual = retiradaAnual + saldo;
           saldo = 0;
           if (parcial === undefined && mes !== 12) {
@@ -83,12 +126,16 @@ console.log(investimentos);
         }
       }
 
-      investimentos.push({ linhabase, juroAnual, retiradaAnual, saldo, parcial, investimentoAnual });
-      if (parcial) parcial = 0;
+      investimentos.push({ linhabase, impostoAnual, juroAnual, retiradaAnual, saldo, parcial, investimentoAnual, idade, saldoRent, saldoRentImp });
+      if (parcial) {
+         parcial = 0;
+      }
+
       if (saldo <= 0) {
         break;
       }
     }
+
     return investimentos;
   }
 }
